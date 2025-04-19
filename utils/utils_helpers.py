@@ -9,6 +9,7 @@ from utils.utils_helpers import *
 def read_file(path:Path):
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
+        make_folder(path_folder=path)
         with open(path, 'r', encoding='UTF-8') as file:
             text_file = file.readlines()
             log_message(path=FILE_LOG, message=f"Text file loaded from: {path}")
@@ -16,8 +17,9 @@ def read_file(path:Path):
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def write_a_file(path=False, url=False, video_url=False):
+def write_a_file(path:Path=False, url:str=False, video_url:str=False):
     try:
+        make_folder(path_folder=path)
         log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
         if video_url:
             log_message(path=FILE_LOG, message='Argument "Video URL" received.')
@@ -34,6 +36,7 @@ def write_a_file(path=False, url=False, video_url=False):
 
 def log_message(path:Path, message:str):
     try:
+        make_folder(path_folder=path)
         log_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
         with open(path, "a", encoding='UTF-8') as file:
@@ -42,9 +45,18 @@ def log_message(path:Path, message:str):
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
+def make_folder(path_folder:Path):
+    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
+    try:
+        log_message(path=FILE_LOG, message=f"Checking if the path exists: {path_folder}")
+        os.makedirs(path_folder.parent, exist_ok=True)
+    except Exception as e:
+        log_message(path=FILE_LOG, message=f"Error: {e}.")
+
 def make_variables(url:str, site:str, image_type:str, path:Path):
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
+        make_folder(path_folder=path)
         product_name = url.strip(site)
         product_names = [product_name + '.png', product_name + ' - 00.png', product_name + ' - 01.png', product_name + ' - 02.png']
 

@@ -78,6 +78,7 @@ def browser_login_to_site(browser, username, password, login_url, time_wait):
 def browser_save_cookies(browser, cookies_path):
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
+        make_folder(path_folder=cookies_path)
         with open(cookies_path, "wb") as file:
             pickle.dump(browser.get_cookies(), file)
             log_message(path=FILE_LOG, message="Browser cookies have been saved.")
@@ -88,6 +89,7 @@ def browser_save_cookies(browser, cookies_path):
 def browser_load_cookies(browser, cookies_path, url):
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
+        make_folder(path_folder=cookies_path)
         browser.get(url)
         log_message(path=FILE_LOG, message=f"Browser get url {url}.")
         time.sleep(3)
@@ -198,7 +200,8 @@ def browser_detect_and_skip_offer(browser) -> bool:
 
 def browser_save_screenshot(browser, path):
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
-    try:        
+    try:
+        make_folder(path_folder=path)
         browser.save_screenshot(path)
         log_message(path=FILE_LOG, message=f"Screen shot saved in: {path}")
     except Exception as e:

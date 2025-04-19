@@ -3,14 +3,14 @@ from config.settings import *
 from utils.utils_helpers import *
 from PIL import Image
 
-def image_crop_and_resize(path_full:str, path_1:str, path_2:str, crop_1:tuple, crop_2:tuple, resize_1:tuple, resize_2:tuple) -> None:
+def image_crop_and_resize(path_full:Path, path_1:Path, path_2:Path, crop_1:tuple, crop_2:tuple, resize_1:tuple, resize_2:tuple) -> None:
     """
     Crops two regions from a source image, resizes them, and saves them as separate image files.
 
     Args:
-        path_full (str): Path to the source image.
-        path_1 (str): Output path for the first cropped and resized image.
-        path_2 (str): Output path for the second cropped and resized image.
+        path_full (Path): Path to the source image.
+        path_1 (Path): Output path for the first cropped and resized image.
+        path_2 (Path): Output path for the second cropped and resized image.
         crop_1 (tuple): Crop box for the first image (left, upper, right, lower).
         crop_2 (tuple): Crop box for the second image (left, upper, right, lower).
         resize_1 (tuple): Target size for the first image (width, height).
@@ -20,6 +20,9 @@ def image_crop_and_resize(path_full:str, path_1:str, path_2:str, crop_1:tuple, c
         None
     """
     try:
+        make_folder(path_folder=path_full)
+        make_folder(path_folder=path_1)
+        make_folder(path_folder=path_2)
         try:        
             full_image = Image.open(path_full)
             log_message(path=FILE_LOG, message=f"Full image loaded from: {path_full}")
@@ -54,7 +57,7 @@ def image_crop_and_resize(path_full:str, path_1:str, path_2:str, crop_1:tuple, c
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def image_overlay_background(path_background:str, path_1:str, path_2:str, path_final:str, position_1:tuple, position_2:tuple) -> None:
+def image_overlay_background(path_background:Path, path_1:Path, path_2:Path, path_final:Path, position_1:tuple, position_2:tuple) -> None:
     """
     Overlays two images (title and product) onto a background image and saves the final result.
 
@@ -70,27 +73,29 @@ def image_overlay_background(path_background:str, path_1:str, path_2:str, path_f
         None
     """
     try:
-        background = Image.open(path_background).convert("RGBA")
-        log_message(path=FILE_LOG, message=f"Background image loaded from: {path_background}")
-    except (FileNotFoundError, UnidentifiedImageError) as e:
-        log_message(path=FILE_LOG, message=f"Error: {e}.")
-        return
+        make_folder(path_folder=path_background)
+        make_folder(path_folder=path_final)
+        try:
+            background = Image.open(path_background).convert("RGBA")
+            log_message(path=FILE_LOG, message=f"Background image loaded from: {path_background}")
+        except (FileNotFoundError, UnidentifiedImageError) as e:
+            log_message(path=FILE_LOG, message=f"Error: {e}.")
+            return
 
-    try:
-        title_image = Image.open(path_1).convert("RGBA")
-        log_message(path=FILE_LOG, message=f"Title image loaded from: {path_1}")
-    except (FileNotFoundError, UnidentifiedImageError) as e:
-        log_message(path=FILE_LOG, message=f"Error: {e}.")
-        return
+        try:
+            title_image = Image.open(path_1).convert("RGBA")
+            log_message(path=FILE_LOG, message=f"Title image loaded from: {path_1}")
+        except (FileNotFoundError, UnidentifiedImageError) as e:
+            log_message(path=FILE_LOG, message=f"Error: {e}.")
+            return
 
-    try:
-        product_image = Image.open(path_2).convert("RGBA")
-        log_message(path=FILE_LOG, message=f"Product image loaded from: {path_2}")
-    except (FileNotFoundError, UnidentifiedImageError) as e:
-        log_message(path=FILE_LOG, message=f"Error: {e}.")
-        return
+        try:
+            product_image = Image.open(path_2).convert("RGBA")
+            log_message(path=FILE_LOG, message=f"Product image loaded from: {path_2}")
+        except (FileNotFoundError, UnidentifiedImageError) as e:
+            log_message(path=FILE_LOG, message=f"Error: {e}.")
+            return
 
-    try:
         background.paste(product_image, position_2, product_image)
         background.paste(title_image, position_1, title_image)
         log_message(path=FILE_LOG, message="Product and Title Images overlaid on the background image.")
