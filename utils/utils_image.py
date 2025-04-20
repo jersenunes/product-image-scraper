@@ -62,10 +62,10 @@ def image_overlay_background(path_background:Path, path_1:Path, path_2:Path, pat
     Overlays two images (title and product) onto a background image and saves the final result.
 
     Args:
-        path_background (str): Path to the background image.
-        path_1 (str): Path to the first overlay image.
-        path_2 (str): Path to the second overlay image.
-        path_final (str): Path where the final composed image will be saved.
+        path_background (Path): Path to the background image.
+        path_1 (Path): Path to the first overlay image.
+        path_2 (Path): Path to the second overlay image.
+        path_final (Path): Path where the final composed image will be saved.
         position_1 (tuple): (x, y) position for the first image overlay on the background.
         position_2 (tuple): (x, y) position for the second image overlay on the background.
 
