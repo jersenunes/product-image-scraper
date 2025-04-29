@@ -1,6 +1,7 @@
 # type: ignore
 import time
 import pyautogui
+import keyboard
 import pickle
 import inspect
 from config.settings import *
@@ -16,19 +17,15 @@ def browser_make_chrome_browser(options: str) -> webdriver.Chrome:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         chrome_options = webdriver.ChromeOptions()
-
         if options is not None:
             for option in options:
                 chrome_options.add_argument(option)
                 log_message(path=FILE_LOG, message=f"{option} argument added to ChromeOptions.")
-
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option('useAutomationExtension', False)
         log_message(path=FILE_LOG, message="Experimental options added to ChromeOptions.")
-
         browser = webdriver.Chrome(options=chrome_options)
         log_message(path=FILE_LOG, message="Chrome browser webdriver created with success.")
-
         browser.execute_cdp_cmd(
             "Page.addScriptToEvaluateOnNewDocument",
             {"source": """
@@ -37,12 +34,11 @@ def browser_make_chrome_browser(options: str) -> webdriver.Chrome:
                 });
             """},)
         log_message(path=FILE_LOG, message="Executed JavaScript to remove the webdriver property.")
-
         return browser
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def browser_login_to_site(browser, username, password, login_url, time_wait):
+def browser_login_to_site(browser, username, password, login_url, time_wait) -> webdriver.Chrome:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     login_success = False
 
@@ -75,7 +71,7 @@ def browser_login_to_site(browser, username, password, login_url, time_wait):
             browser.quit()
     return browser
 
-def browser_save_cookies(browser, cookies_path):
+def browser_save_cookies(browser, cookies_path) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         make_folder(path_folder=cookies_path)
@@ -86,7 +82,7 @@ def browser_save_cookies(browser, cookies_path):
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def browser_load_cookies(browser, cookies_path, url):
+def browser_load_cookies(browser, cookies_path, url) -> bool:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         make_folder(path_folder=cookies_path)
@@ -115,7 +111,7 @@ def browser_load_cookies(browser, cookies_path, url):
         log_message(path=FILE_LOG, message=f"Error: {e}.")
         return False
 
-def browser_get_site(browser, url):
+def browser_get_site(browser, url) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         browser.get(url)
@@ -124,7 +120,7 @@ def browser_get_site(browser, url):
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def browser_wait_for_site_to_load(browser, time_wait):
+def browser_wait_for_site_to_load(browser, time_wait) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         WebDriverWait(browser, time_wait).until(
@@ -152,10 +148,9 @@ def browser_enable_full_screen(browser) -> None:
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def browser_detect_video(browser, move_mouse):
+def browser_detect_video(browser, move_mouse, url) -> str:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
-        video_url = False
 
         log_message(path=FILE_LOG, message="Checking for video url.")
 
@@ -174,12 +169,13 @@ def browser_detect_video(browser, move_mouse):
 
         time.sleep(0.5)
 
-        if video_url:
-            log_message(path=FILE_LOG, message="Saved a video url.")
-            return video_url
-        
-        log_message(path=FILE_LOG, message="No video URL detected.")
-        return video_url
+        if video_url in locals():
+            if ".mp4" in video_url:
+                log_message(path=FILE_LOG, message="Trying to save a video url.")
+                write_a_file(path=VIDEOS_URL, url=url, video_url=video_url, type="a")
+        else:
+            log_message(path=FILE_LOG, message="No video URL detected.")
+
     
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
@@ -198,16 +194,130 @@ def browser_detect_and_skip_offer(browser) -> bool:
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def browser_save_screenshot(browser, path):
+def browser_get_group_name(browser, group_name) -> None:
+    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
+    try:
+        log_message(path=FILE_LOG, message="Checking for search box.")
+        search_box = browser.find_element(By.XPATH, '//div[@contenteditable="true"][@data-tab="3"]')
+        search_box.send_keys(group_name)
+
+        time.sleep(2)
+
+        log_message(path=FILE_LOG, message="Checking for group name.")
+        group = browser.find_element(By.XPATH, f'//span[@title="{group_name}"]')
+        group.click()
+    except Exception as e:
+        log_message(path=FILE_LOG, message=f"Error: {e}.")
+
+def browser_get_attachment(browser, path) -> None:
+    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
+    try:
+        time.sleep(3)
+
+        try:
+            log_message(path=FILE_LOG, message="Trying to click the attachment button.")
+            attachment_box = WebDriverWait(browser, TIME_TO_WAIT).until(
+                EC.element_to_be_clickable((By.XPATH, '//button[@title="Anexar"]'))
+            )
+            attachment_box.click()
+            log_message(path=FILE_LOG, message="Clicked on the attachment button.")
+
+        except:
+            log_message(path=FILE_LOG, message="Trying to click the attachment button again.")
+            attachment_box = WebDriverWait(browser, TIME_TO_WAIT).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[title="Anexar"]'))
+            )
+            attachment_box.click()
+            log_message(path=FILE_LOG, message="Clicked on the attachment button.")
+
+        log_message(path=FILE_LOG, message="Trying to click the image/video option.")
+        image_box = browser.find_element(By.XPATH, '//input[@accept="image/*,video/mp4,video/3gpp,video/quicktime"]')
+        log_message(path=FILE_LOG, message="Clicked on the image/video option.")
+
+        log_message(path=FILE_LOG, message="Trying to get image for attachment.")
+        image_box.send_keys(os.path.abspath(path))
+        log_message(path=FILE_LOG, message="Image selected for attachment successfully.")
+        
+        time.sleep(2)
+
+    except Exception as e:
+        log_message(path=FILE_LOG, message=f"Error: {e}.")
+
+def browser_set_message(browser, message) -> None:
+    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
+    try:
+        log_message(path=FILE_LOG, message="Trying to find message box.")
+        #Find field of message
+        message_box = browser.find_element(By.XPATH, '//div[@aria-label="Adicione uma legenda"]')
+        message_box.click()
+        log_message(path=FILE_LOG, message="Message box found and clicked.")
+
+        #Send the message
+        log_message(path=FILE_LOG, message=f"Trying to send message.")
+        message_box.send_keys(message)
+
+        sended = browser_check_if_sent(browser)
+
+        if sended:
+            #checking if video exist
+            url_video = check_video(url=message)
+            if url_video:
+                #Find field of message
+                log_message(path=FILE_LOG, message="Trying to find message box.")
+                message_box = browser.find_element(By.XPATH, '//div[@aria-label="Digite uma mensagem"]')
+                message_box.click()   
+                log_message(path=FILE_LOG, message="Message box found and clicked.") 
+                
+                #Send the message
+                log_message(path=FILE_LOG, message=f"Trying to send message.")
+                message_box.send_keys(url_video)
+                
+            log_message(path=FILE_LOG, message=f"Message sent successfully.")
+            return sended
+        else:
+            log_message(path=FILE_LOG, message="Message failed to be sent.")
+            return sended
+
+    except Exception as e:
+        log_message(path=FILE_LOG, message=f"Error: {e}.")
+
+def browser_check_if_sent(browser) -> bool:
+    count_try = 0
+    while True:
+        count_try += 1
+        log_message(path=FILE_LOG, message=f"Attempt number {str(count_try)}: Checking if it was sent.")
+
+        try:
+            log_message(path=FILE_LOG, message='Checking for: //span[@aria-label=" Entregue "]')
+            WebDriverWait(browser, TIME_TO_WAIT).until(
+                EC.presence_of_element_located((By.XPATH, '(//span[@aria-label=" Entregue "])[last()]'))
+            )
+            return True
+        except:
+            try:
+                log_message(path=FILE_LOG, message='Checking for: //span[@aria-label=" Enviada "]')
+                WebDriverWait(browser, TIME_TO_WAIT).until(
+                    EC.presence_of_element_located((By.XPATH, '(//span[@aria-label=" Enviada "])[last()]'))
+                )
+                return True
+
+            except Exception as e:
+                log_message(path=FILE_LOG, message=f"Error: {e}.")
+                if count_try == 10:
+                    return False
+                continue
+
+def browser_save_screenshot(browser, path) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         make_folder(path_folder=path)
+        log_message(path=FILE_LOG, message="Trying to take a screenshot of the browser screen.")
         browser.save_screenshot(path)
         log_message(path=FILE_LOG, message=f"Screen shot saved in: {path}")
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def browser_quit(browser):
+def browser_quit(browser) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         browser.quit()
