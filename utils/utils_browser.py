@@ -1,7 +1,6 @@
 # type: ignore
 import time
 import pyautogui
-import keyboard
 import pickle
 import inspect
 from config.settings import *
@@ -115,7 +114,7 @@ def browser_get_site(browser, url) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         browser.get(url)
-        log_message(path=FILE_LOG, message=f"Browser get url {url}.")
+        log_message(path=FILE_LOG, message=f"Browser get url {url.strip('\n')}")
         time.sleep(3)
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
@@ -180,17 +179,96 @@ def browser_detect_video(browser, move_mouse, url) -> str:
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def browser_detect_and_skip_offer(browser) -> bool:
+def browser_detect_and_skip(browser, option) -> bool:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
-        log_message(path=FILE_LOG, message="Checking for offer.")
-        if browser.find_elements(By.CLASS_NAME, 'wV4oFQ'):
-            log_message(path=FILE_LOG, message="Detected an offer.")
-            return True
-        elif browser.find_elements(By.CLASS_NAME, 'jw_y2_'):
-            log_message(path=FILE_LOG, message="Detected an offer.")
-            return True
+        if option == "shopee":
+            for element in SHOPEE_CLASSES:
+                try:
+                    log_message(path=FILE_LOG, message=f"Checking if must skip url, by class: {element}")
+                    if browser.find_elements(By.CLASS_NAME, element):
+                        log_message(path=FILE_LOG, message="Skipping the url.")
+                        return True
+                except:
+                    if element == SHOPEE_CLASSES[-1]:
+                        pass
+                    continue
+        elif option == "magalu":
+            for element in MAGALU_CLASSES:
+                try:
+                    log_message(path=FILE_LOG, message=f"Checking if must skip url, by class: {element}")
+                    if browser.find_elements(By.CLASS_NAME, element):
+                        log_message(path=FILE_LOG, message="Skipping the url.")
+                        return True
+                except:
+                    if element == MAGALU_CLASSES[-1]:
+                        pass
+                    continue
         return False
+    
+    except Exception as e:
+        log_message(path=FILE_LOG, message=f"Error: {e}.")
+        return False
+
+def browser_hidden_class(browser) -> None:
+    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
+    try:   
+        for element in MAGALU_CSS:
+            try:
+                log_message(path=FILE_LOG, message=f"Trying to hidden the element: {element}")
+                element_item = browser.find_element(By.CSS_SELECTOR, f'div[data-testid="{element}"]')
+                browser.execute_script("arguments[0].style.display = 'none';", element_item)
+                log_message(path=FILE_LOG, message=f"Successfully hidden the element: {element}")
+            except:
+                if element == MAGALU_CSS[-1]:
+                    break
+                continue
+
+        for element in MAGALU_XPATHS:
+            try:
+                if element == MAGALU_XPATHS[-1]:
+                    time.sleep(1)
+                log_message(path=FILE_LOG, message=f"Trying to hidden the element: {element}")
+                element_item = browser.find_element(By.XPATH, element)
+                browser.execute_script("arguments[0].style.display = 'none';", element_item)
+                log_message(path=FILE_LOG, message=f"Successfully hidden the element: {element}")
+            except:
+                if element == MAGALU_XPATHS[-1]:
+                    break
+                continue
+
+    except Exception as e:
+        log_message(path=FILE_LOG, message=f"Error: {e}.")
+
+def browser_modify_width_title(browser) -> None:
+    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
+    try:
+        log_message(path=FILE_LOG, message=f"Trying to modify the width of the product title.")
+        element_item = browser.find_element(By.CSS_SELECTOR, 'div[data-testid="mod-headingproduct"]')
+        browser.execute_script("arguments[0].style.width = '850px';", element_item)
+        log_message(path=FILE_LOG, message=f"Modified the width with success.")
+
+        log_message(path=FILE_LOG, message=f"Trying to modify the fontSize of the product title.")
+        element_item = browser.find_element(By.XPATH, "/html/body/div/div/main/section[2]/div[2]/h1")
+        browser.execute_script("arguments[0].style.fontSize = '28px';", element_item)
+        log_message(path=FILE_LOG, message=f"Modified the fontSize with success.")
+        
+
+    except Exception as e:
+        log_message(path=FILE_LOG, message=f"Error: {e}.")
+
+def browser_checking_characters_number(browser) -> tuple | bool:
+    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
+    try:
+        log_message(path=FILE_LOG, message=f"Trying to get the product title.")
+        element_item = browser.find_element(By.CSS_SELECTOR, 'div[data-testid="mod-headingproduct"]')
+        
+        log_message(path=FILE_LOG, message=f"Checking if the product title is less than 70 characters.")
+        if len(element_item.text) < 70:
+            log_message(path=FILE_LOG, message=f"Product title is less than 70 characters.")
+            return (1250, 90, 1615, 275)
+        return False
+
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
@@ -212,11 +290,10 @@ def browser_get_group_name(browser, group_name) -> None:
 def browser_get_attachment(browser, path) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
-        time.sleep(3)
-
+        time.sleep(TIME_TO_WAIT_5)
         try:
             log_message(path=FILE_LOG, message="Trying to click the attachment button.")
-            attachment_box = WebDriverWait(browser, TIME_TO_WAIT).until(
+            attachment_box = WebDriverWait(browser, TIME_TO_WAIT_10).until(
                 EC.element_to_be_clickable((By.XPATH, '//button[@title="Anexar"]'))
             )
             attachment_box.click()
@@ -224,7 +301,7 @@ def browser_get_attachment(browser, path) -> None:
 
         except:
             log_message(path=FILE_LOG, message="Trying to click the attachment button again.")
-            attachment_box = WebDriverWait(browser, TIME_TO_WAIT).until(
+            attachment_box = WebDriverWait(browser, TIME_TO_WAIT_10).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[title="Anexar"]'))
             )
             attachment_box.click()
@@ -243,32 +320,28 @@ def browser_get_attachment(browser, path) -> None:
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def browser_set_message(browser, message) -> None:
+def browser_send_message(browser, message) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         log_message(path=FILE_LOG, message="Trying to find message box.")
-        #Find field of message
         message_box = browser.find_element(By.XPATH, '//div[@aria-label="Adicione uma legenda"]')
         message_box.click()
         log_message(path=FILE_LOG, message="Message box found and clicked.")
 
-        #Send the message
-        log_message(path=FILE_LOG, message=f"Trying to send message.")
-        message_box.send_keys(message)
+        log_message(path=FILE_LOG, message=f"Trying to send message: {message}")
+        message_box.send_keys(message)               
 
         sended = browser_check_if_sent(browser)
 
         if sended:
-            #checking if video exist
+            time.sleep(TIME_TO_WAIT_5) 
             url_video = check_video(url=message)
             if url_video:
-                #Find field of message
                 log_message(path=FILE_LOG, message="Trying to find message box.")
                 message_box = browser.find_element(By.XPATH, '//div[@aria-label="Digite uma mensagem"]')
                 message_box.click()   
                 log_message(path=FILE_LOG, message="Message box found and clicked.") 
-                
-                #Send the message
+
                 log_message(path=FILE_LOG, message=f"Trying to send message.")
                 message_box.send_keys(url_video)
                 
@@ -282,30 +355,24 @@ def browser_set_message(browser, message) -> None:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
 def browser_check_if_sent(browser) -> bool:
-    count_try = 0
-    while True:
-        count_try += 1
-        log_message(path=FILE_LOG, message=f"Attempt number {str(count_try)}: Checking if it was sent.")
-
-        try:
-            log_message(path=FILE_LOG, message='Checking for: //span[@aria-label=" Entregue "]')
-            WebDriverWait(browser, TIME_TO_WAIT).until(
-                EC.presence_of_element_located((By.XPATH, '(//span[@aria-label=" Entregue "])[last()]'))
-            )
-            return True
-        except:
+    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
+    try:
+        count_try = 1
+        while True:
+            log_message(path=FILE_LOG, message=f"Attempt number {str(count_try)}.")
             try:
-                log_message(path=FILE_LOG, message='Checking for: //span[@aria-label=" Enviada "]')
-                WebDriverWait(browser, TIME_TO_WAIT).until(
-                    EC.presence_of_element_located((By.XPATH, '(//span[@aria-label=" Enviada "])[last()]'))
-                )
-                return True
-
-            except Exception as e:
-                log_message(path=FILE_LOG, message=f"Error: {e}.")
-                if count_try == 10:
+                for element in WHATSAPP_XPATHS:
+                    log_message(path=FILE_LOG, message=f'Checking for: {element}')
+                    WebDriverWait(browser, TIME_TO_WAIT_10).until(EC.presence_of_element_located((By.XPATH, element)))
+                    return True
+            except:
+                count_try += 1
+                if count_try >= 11:
                     return False
                 continue
+
+    except Exception as e:
+        log_message(path=FILE_LOG, message=f"Error: {e}.")    
 
 def browser_save_screenshot(browser, path) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")

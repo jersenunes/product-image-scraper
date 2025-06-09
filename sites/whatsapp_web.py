@@ -21,10 +21,10 @@ def main():
     
     #Import the lists
     url_list = read_file(PRODUCTS_SELECTED)
-    sended_whatsapp = read_file(SENDED_WHATSAPP)
+    whatsapp_urls = read_file(WHATSAPP_URLS)
 
     for url in url_list:
-        if url in sended_whatsapp:
+        if url in whatsapp_urls:
             continue
 
         send_status = False
@@ -35,11 +35,11 @@ def main():
         browser_get_attachment(browser=browser, path=IMAGE)
 
         #Send message
-        send_status = browser_set_message(browser=browser, message=url)
+        send_status = browser_send_message(browser=browser, message=url)
 
         if send_status:
             print(f"Success in uploading the image: {url}")
-            write_a_file(path=SENDED_WHATSAPP, url=url)
+            write_a_file(path=WHATSAPP_URLS, url=url)
         else:
             print(f"Failed in uploading the image: {url}")
             write_a_file(path=FAIL_TO_SEND, url=url)

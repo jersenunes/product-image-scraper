@@ -5,10 +5,11 @@ from pathlib import Path
 from datetime import datetime
 from config.settings import *
 
-def read_file(path:Path):
+def read_file(path:Path) -> str:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
-        make_folder(path_folder=path)
+        if not os.path.exists(path.parent):
+            make_folder(path_folder=path)
         with open(path, 'r', encoding='UTF-8') as file:
             text_file = file.readlines()
             log_message(path=FILE_LOG, message=f"Text file loaded from: {path}")
@@ -16,68 +17,86 @@ def read_file(path:Path):
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def write_a_file(path:Path=False, url:str=False, video_url:str=False, type:str=False):
+def write_a_file(path:Path=False, text:str=False, type:str=False) -> None:
+    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
-        make_folder(path_folder=path)
-        log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
-        if video_url:
-            log_message(path=FILE_LOG, message='Argument "Video URL" received.')
-            if type == "a":
-                with open(path, "a", encoding='UTF-8') as file:
-                    file.write(f'{url.strip('\n')},{video_url}\n')
-                    log_message(path=FILE_LOG, message=f"Video URL saved in: {path}")
-            elif type == "w":
-                with open(path, "w", encoding='UTF-8') as file:
-                    file.writelines(video_url)
-                    log_message(path=FILE_LOG, message=f"Videos URL List saved in: {path}")
-        else:
+        if not os.path.exists(path.parent):
+            make_folder(path_folder=path)
+        if type == "a":
             with open(path, "a", encoding='UTF-8') as file:
-                file.write(url)
+                file.write(text)
                 log_message(path=FILE_LOG, message=f"File text saved in: {path}")
+        elif type == "w":
+            with open(path, "w", encoding='UTF-8') as file:
+                file.writelines(text)
+                log_message(path=FILE_LOG, message=f"File text saved in: {path}")
+
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def log_message(path:Path, message:str):
+def log_message(path:Path, message:str) -> None:
     try:
-        if not os.path.exists(path):
-            make_folder(path_folder=path)
+        make_folder(path_folder=path)
         log_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
         with open(path, "a", encoding='UTF-8') as file:
-            file.write(f"{log_time} - {message}\n")
+            file.write(f"{log_time} - ProductImageScrape - {message}\n")
 
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def make_folder(path_folder:Path):
+def delete_file(path_file:Path) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
-        log_message(path=FILE_LOG, message=f"Checking if the path exists: {path_folder}")
-        os.makedirs(path_folder.parent, exist_ok=True)
+        log_message(path=FILE_LOG, message=f"Checking if the file exists: {path_file}")
+        if os.path.exists(path_file):
+            os.remove(path_file)
+            log_message(path=FILE_LOG, message=f"File removed with success.")
+        else:
+            log_message(path=FILE_LOG, message=f"The file does not exist.")
+
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def make_variables(url:str, site:str, image_type:str, path:Path):
+def make_folder(path_folder:Path) -> None:
+    if path_folder != FILE_LOG:
+        log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
+    try:
+        if path_folder != FILE_LOG:
+            log_message(path=FILE_LOG, message=f"Checking if the path exists: {path_folder}")
+            if not os.path.exists(path_folder):
+                os.makedirs(path_folder.parent, exist_ok=True)
+            else:
+                log_message(path=FILE_LOG, message=f"The path already exists: {path_folder}")
+    except Exception as e:
+        if path_folder != FILE_LOG:
+            log_message(path=FILE_LOG, message=f"Error: {e}.")
+
+def make_path(url:str, option:str) -> Path:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
-        make_folder(path_folder=path)
-        product_name = url.strip(site)
+        make_folder(path_folder=PROMO_IMAGES)
+        if "www.magazinevoce.com.br" in url:
+            product_name = url.split("/")[4]
+        elif "s.shopee.com.br" in url:
+            url = url.strip('\n')
+            product_name = url.split("/")[3]
         product_names = [product_name + '.png', product_name + ' - 00.png', product_name + ' - 01.png', product_name + ' - 02.png']
 
-        if image_type == "final":
-            new_path = path / product_names[0]
+        if option == "image_final":
+            new_path = PROMO_IMAGES / product_names[0]
             log_message(path=FILE_LOG, message=f"Was created the path: {new_path}")
             return new_path
-        elif image_type == "full":  
-            new_path =  path / product_names[1]
+        elif option == "image_full":  
+            new_path =  PROMO_IMAGES / product_names[1]
             log_message(path=FILE_LOG, message=f"Was created the path: {new_path}")
             return new_path
-        elif image_type == "first":  
-            new_path =  path / product_names[2]
+        elif option == "image_first":  
+            new_path =  PROMO_IMAGES / product_names[2]
             log_message(path=FILE_LOG, message=f"Was created the path: {new_path}")
             return new_path
-        elif image_type == "second":  
-            new_path =  path / product_names[3]
+        elif option == "image_second":  
+            new_path =  PROMO_IMAGES / product_names[3]
             log_message(path=FILE_LOG, message=f"Was created the path: {new_path}")
             return new_path
     except Exception as e:
@@ -99,7 +118,7 @@ def check_video(url) -> str:
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def review_products_names(products_path:Path, images_path:Path, site:str):
+def review_products_names(products_path:Path, images_path:Path, site:str) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         new_products = []
@@ -129,7 +148,7 @@ def review_products_names(products_path:Path, images_path:Path, site:str):
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def review_video_urls(path_videos:Path):
+def review_video_urls(path_videos:Path) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         videos_url = read_file(path=path_videos)
@@ -142,7 +161,21 @@ def review_video_urls(path_videos:Path):
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
 
-def clean_products_selected(initial_path:Path, selected_path:Path):
+def review_list(path_list:Path) -> None:
+    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
+    try:
+        file_list = read_file(path=path_list)
+
+        log_message(path=FILE_LOG, message="Trying to remove duplicates.")
+        file_list = set(file_list)
+        log_message(path=FILE_LOG, message="Removed duplicates with success.")
+
+        write_a_file(path=path_list, text=file_list, type="w")
+
+    except Exception as e:
+        log_message(path=FILE_LOG, message=f"Error: {e}.")
+
+def clean_products_selected(initial_path:Path, selected_path:Path) -> None:
     log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         products_selected = read_file(path=selected_path)

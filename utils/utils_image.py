@@ -19,40 +19,32 @@ def image_crop_and_resize(path_full:Path, path_1:Path, path_2:Path, crop_1:tuple
     Returns:
         None
     """
+    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         make_folder(path_folder=path_full)
-        make_folder(path_folder=path_1)
-        make_folder(path_folder=path_2)
-        try:        
-            full_image = Image.open(path_full)
-            log_message(path=FILE_LOG, message=f"Full image loaded from: {path_full}")
-        except (FileNotFoundError, UnidentifiedImageError) as e:
-            log_message(path=FILE_LOG, message=f"Error: {e}.")
-            return
+            
+        full_image = Image.open(path_full)
+        log_message(path=FILE_LOG, message=f"Full image loaded from: {path_full}")
 
         #Crop and resize the first image
-        title_image = full_image.crop(crop_1)
-        log_message(path=FILE_LOG, message="Full image cropped to form title image.")
-        try:
-            title_image = title_image.resize(resize_1, Image.Resampling.LANCZOS)
-        except AttributeError:
-            title_image = title_image.resize(resize_1, Image.LANCZOS)
-        log_message(path=FILE_LOG, message="Title image resized.")
+        product_image = full_image.crop(crop_1)
+        log_message(path=FILE_LOG, message="Full image cropped to form Product image.")
+
+        product_image = product_image.resize(resize_1, Image.Resampling.LANCZOS)
+        log_message(path=FILE_LOG, message="Product image resized.")
 
         #Crop and resize the second image
-        product_image = full_image.crop(crop_2)
+        price_image = full_image.crop(crop_2)
         log_message(path=FILE_LOG, message="Full image cropped to form product image.")
-        try:
-            product_image = product_image.resize(resize_2, Image.Resampling.LANCZOS)
-        except AttributeError:
-            product_image = product_image.resize(resize_2, Image.LANCZOS)
-        log_message(path=FILE_LOG, message="Product image resized.")
+        
+        price_image = price_image.resize(resize_2, Image.Resampling.LANCZOS)
+        log_message(path=FILE_LOG, message="Price image resized.")
         
         #Save the resulting images
-        title_image.save(path_1)
-        log_message(path=FILE_LOG, message=f"Title image saved in: {path_1}")
-        product_image.save(path_2)
-        log_message(path=FILE_LOG, message=f"Product image saved in: {path_2}")
+        product_image.save(path_1)
+        log_message(path=FILE_LOG, message=f"Product image saved in: {path_1}")
+        price_image.save(path_2)
+        log_message(path=FILE_LOG, message=f"Price image saved in: {path_2}")
 
     except Exception as e:
         log_message(path=FILE_LOG, message=f"Error: {e}.")
@@ -72,6 +64,7 @@ def image_overlay_background(path_background:Path, path_1:Path, path_2:Path, pat
     Returns:
         None
     """
+    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
     try:
         make_folder(path_folder=path_background)
         make_folder(path_folder=path_final)
