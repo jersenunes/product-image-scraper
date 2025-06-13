@@ -5,47 +5,52 @@ from config.settings import *
 from utils.utils_helpers import *
 from utils.utils_browser import *
 
+'''
+Check for generated product images
+Open Whatsapp Web in the browser
+Send product images to the Whatsapp group
+'''
+
 def send_images_to_whatsapp():
     main()
 
 def main():
-    #Making browser with webdriver and does login to site
     browser = browser_make_chrome_browser(OPTIONS_BROWSER)
-    
-    #Get site
+
     browser_get_site(browser=browser, url=SITE_WHATSAPP)
-    time.sleep(TIME_TO_WAIT*2)
+    time.sleep(TIME_TO_WAIT_10*2)
 
-    #Get group
     browser_get_group_name(browser=browser, group_name=GROUP_WHATSAPP)
-    
-    #Import the lists
-    url_list = read_file(PRODUCTS_SELECTED)
-    whatsapp_urls = read_file(WHATSAPP_URLS)
 
-    for url in url_list:
-        if url in whatsapp_urls:
-            continue
+    if os.path.exists(PRODUCTS_URLS):
+        url_list = read_file(PRODUCTS_URLS)
 
-        send_status = False
-        #Make path for image
-        IMAGE = make_variables(url=url, path=PROMO_IMAGES, site=SITE_SHOPEE, image_type="final")
+        for url in url_list:
+            if os.path.exists(WHATSAPP_URLS):
+                whatsapp_urls = read_file(WHATSAPP_URLS)
+                if url in whatsapp_urls:
+                    continue
 
-        #Get attachment
-        browser_get_attachment(browser=browser, path=IMAGE)
+                send_status = False
 
-        #Send message
-        send_status = browser_send_message(browser=browser, message=url)
+                IMAGE = make_path(url=url, option="image_final")
 
-        if send_status:
-            print(f"Success in uploading the image: {url}")
-            write_a_file(path=WHATSAPP_URLS, url=url)
-        else:
-            print(f"Failed in uploading the image: {url}")
-            write_a_file(path=FAIL_TO_SEND, url=url)
-        time.sleep(5)
+                browser_get_attachment(browser=browser, path=IMAGE)
+
+                send_status = browser_send_message(browser=browser, message=url)
+
+                if send_status:
+                    print(f"Success in uploading the image: {url}")
+                    write_a_file(path=WHATSAPP_URLS, text=url, type="a")
+                else:
+                    print(f"Failed in uploading the image: {url}")
+                    write_a_file(path=FAIL_TO_SEND, text=url, type="a")
+
+                time.sleep(TIME_TO_WAIT_5)
 
     browser_quit(browser)
+
+    clean_products_selected(initial_path=PRODUCTS_URLS, selected_path=WHATSAPP_URLS)
 
 if __name__ == "__main__":
     main()

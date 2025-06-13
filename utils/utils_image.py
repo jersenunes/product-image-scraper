@@ -26,21 +26,18 @@ def image_crop_and_resize(path_full:Path, path_1:Path, path_2:Path, crop_1:tuple
         full_image = Image.open(path_full)
         log_message(path=FILE_LOG, message=f"Full image loaded from: {path_full}")
 
-        #Crop and resize the first image
         product_image = full_image.crop(crop_1)
         log_message(path=FILE_LOG, message="Full image cropped to form Product image.")
 
         product_image = product_image.resize(resize_1, Image.Resampling.LANCZOS)
         log_message(path=FILE_LOG, message="Product image resized.")
 
-        #Crop and resize the second image
         price_image = full_image.crop(crop_2)
         log_message(path=FILE_LOG, message="Full image cropped to form product image.")
         
         price_image = price_image.resize(resize_2, Image.Resampling.LANCZOS)
         log_message(path=FILE_LOG, message="Price image resized.")
         
-        #Save the resulting images
         product_image.save(path_1)
         log_message(path=FILE_LOG, message=f"Product image saved in: {path_1}")
         price_image.save(path_2)

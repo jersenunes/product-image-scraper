@@ -328,7 +328,7 @@ def browser_send_message(browser, message) -> None:
         message_box.click()
         log_message(path=FILE_LOG, message="Message box found and clicked.")
 
-        log_message(path=FILE_LOG, message=f"Trying to send message: {message}")
+        log_message(path=FILE_LOG, message=f"Trying to send message: {message.strip('\n')}")
         message_box.send_keys(message)               
 
         sended = browser_check_if_sent(browser)

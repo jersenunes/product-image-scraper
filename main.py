@@ -2,6 +2,13 @@ from sites.shopee import *
 from sites.magalu import *
 from sites.whatsapp_web import *
 
+'''
+Main control script to select one of the options:
+    - n1. Get product images from Shopee website;
+    - n2. Get product images from Magalu website;
+    - n3. Send product images to Whatsapp Web;
+'''
+
 def main():
     try:
         option = int(input("Choose the option you want (Only Numbers):" \
