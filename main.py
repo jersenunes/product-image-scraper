@@ -1,12 +1,14 @@
 from sites.shopee import *
 from sites.magalu import *
 from sites.whatsapp_web import *
+from sites.delete_promo_images import *
 
 '''
 Main control script to select one of the options:
     - n1. Get product images from Shopee website;
     - n2. Get product images from Magalu website;
     - n3. Send product images to Whatsapp Web;
+    - n4. Delete all product images.
 '''
 
 def main():
@@ -15,6 +17,7 @@ def main():
         "\n1. Get product images from Shopee website." \
         "\n2. Get product images from Magalu website."\
         "\n3. Send product images to Whatsapp Web."\
+        "\n4. Delete all product images."\
         "\nProvide only one number: "))
             
         if option == 1:
@@ -26,6 +29,9 @@ def main():
         elif option == 3:
             print('Option "3. Send product images to Whatsapp Web" selected.')
             send_images_to_whatsapp()
+        elif option == 4:
+            print('Option "4. Delete all product images.')
+            delete_product_images()
         else:
             print(f'Option "{option}" provided does not exist.')
     except:

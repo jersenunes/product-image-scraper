@@ -31,7 +31,7 @@ def main():
 
             time.sleep(TIME_TO_WAIT_5)
 
-            if browser_detect_and_skip(browser=browser, option="magalu"):
+            if browser_detect_and_skip(browser=browser):
                 continue
 
             FULL_IMAGE = make_path(url=url, option="image_full")
@@ -45,7 +45,7 @@ def main():
 
             browser_save_screenshot(browser=browser, path=FULL_IMAGE)
 
-            MAGALU_CROP_3 = browser_checking_characters_number(browser)
+            MAGALU_CROP_3 = browser_checking_characters_number(browser=browser)
 
             if MAGALU_CROP_3:
                 image_crop_and_resize(path_full=FULL_IMAGE,

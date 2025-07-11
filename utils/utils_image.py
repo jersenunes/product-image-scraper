@@ -19,32 +19,32 @@ def image_crop_and_resize(path_full:Path, path_1:Path, path_2:Path, crop_1:tuple
     Returns:
         None
     """
-    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
+    log_message(path=FILE_LOG, message=f"INFORMATIONAL: Function {inspect.currentframe().f_code.co_name} called.")
     try:
         make_folder(path_folder=path_full)
             
         full_image = Image.open(path_full)
-        log_message(path=FILE_LOG, message=f"Full image loaded from: {path_full}")
+        log_message(path=FILE_LOG, message=f"INFORMATIONAL: Full image loaded from: {path_full}")
 
         product_image = full_image.crop(crop_1)
-        log_message(path=FILE_LOG, message="Full image cropped to form Product image.")
+        log_message(path=FILE_LOG, message="INFORMATIONAL: Full image cropped to form Product image.")
 
         product_image = product_image.resize(resize_1, Image.Resampling.LANCZOS)
-        log_message(path=FILE_LOG, message="Product image resized.")
+        log_message(path=FILE_LOG, message="INFORMATIONAL: Product image resized.")
 
         price_image = full_image.crop(crop_2)
-        log_message(path=FILE_LOG, message="Full image cropped to form product image.")
+        log_message(path=FILE_LOG, message="INFORMATIONAL: Full image cropped to form product image.")
         
         price_image = price_image.resize(resize_2, Image.Resampling.LANCZOS)
-        log_message(path=FILE_LOG, message="Price image resized.")
+        log_message(path=FILE_LOG, message="INFORMATIONAL: Price image resized.")
         
         product_image.save(path_1)
-        log_message(path=FILE_LOG, message=f"Product image saved in: {path_1}")
+        log_message(path=FILE_LOG, message=f"INFORMATIONAL: Product image saved in: {path_1}")
         price_image.save(path_2)
-        log_message(path=FILE_LOG, message=f"Price image saved in: {path_2}")
+        log_message(path=FILE_LOG, message=f"INFORMATIONAL: Price image saved in: {path_2}")
 
     except Exception as e:
-        log_message(path=FILE_LOG, message=f"Error: {e}.")
+        log_message(path=FILE_LOG, message=f"ERROR: {e}.")
 
 def image_overlay_background(path_background:Path, path_1:Path, path_2:Path, path_final:Path, position_1:tuple, position_2:tuple) -> None:
     """
@@ -61,35 +61,35 @@ def image_overlay_background(path_background:Path, path_1:Path, path_2:Path, pat
     Returns:
         None
     """
-    log_message(path=FILE_LOG, message=f"Function {inspect.currentframe().f_code.co_name} called.")
+    log_message(path=FILE_LOG, message=f"INFORMATIONAL: Function {inspect.currentframe().f_code.co_name} called.")
     try:
         make_folder(path_folder=path_background)
         make_folder(path_folder=path_final)
         try:
             background = Image.open(path_background).convert("RGBA")
-            log_message(path=FILE_LOG, message=f"Background image loaded from: {path_background}")
+            log_message(path=FILE_LOG, message=f"INFORMATIONAL: Background image loaded from: {path_background}")
         except (FileNotFoundError, UnidentifiedImageError) as e:
-            log_message(path=FILE_LOG, message=f"Error: {e}.")
+            log_message(path=FILE_LOG, message=f"ERROR: {e}.")
             return
 
         try:
             title_image = Image.open(path_1).convert("RGBA")
-            log_message(path=FILE_LOG, message=f"Title image loaded from: {path_1}")
+            log_message(path=FILE_LOG, message=f"INFORMATIONAL: Title image loaded from: {path_1}")
         except (FileNotFoundError, UnidentifiedImageError) as e:
-            log_message(path=FILE_LOG, message=f"Error: {e}.")
+            log_message(path=FILE_LOG, message=f"ERROR: {e}.")
             return
 
         try:
             product_image = Image.open(path_2).convert("RGBA")
-            log_message(path=FILE_LOG, message=f"Product image loaded from: {path_2}")
+            log_message(path=FILE_LOG, message=f"INFORMATIONAL: Product image loaded from: {path_2}")
         except (FileNotFoundError, UnidentifiedImageError) as e:
-            log_message(path=FILE_LOG, message=f"Error: {e}.")
+            log_message(path=FILE_LOG, message=f"ERROR: {e}.")
             return
 
         background.paste(product_image, position_2, product_image)
         background.paste(title_image, position_1, title_image)
-        log_message(path=FILE_LOG, message="Product and Title Images overlaid on the background image.")
+        log_message(path=FILE_LOG, message="INFORMATIONAL: Product and Title Images overlaid on the background image.")
         background.save(path_final)
-        log_message(path=FILE_LOG, message=f"Promo image saved with success in: {path_final}")
+        log_message(path=FILE_LOG, message=f"INFORMATIONAL: Promo image saved with success in: {path_final}")
     except Exception as e:
-        log_message(path=FILE_LOG, message=f"Error: {e}.")
+        log_message(path=FILE_LOG, message=f"ERROR: {e}.")
